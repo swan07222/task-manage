@@ -1,54 +1,66 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
-import { connect } from "react-redux";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({ searchTerm, setSearchTerm }) => {
+const Navbar = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, categoryFilter, setCategoryFilter }) => {
+  const navigate = useNavigate();
+
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
       <div className="container-fluid">
-        {/* Use Link directly, no nested <a> */}
-        <Link className="navbar-brand" to="/about">
-          Logo
-        </Link>
 
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+        <Link className="navbar-brand" to="/about">About</Link>
+
+        <button className="navbar-toggler" type="button">
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className="collapse navbar-collapse" id="mynavbar">
           <ul className="navbar-nav me-auto mb-2 mb-sm-0">
 
-            {/* Add task button */}
-            <Link to="/add">
-              <li className="nav-item">
-                <button 
-                  type="button" 
-                  className="nav-link btn btn-link" 
-                  data-bs-toggle="modal" 
-                  data-bs-target="#add"
-                >
-                  Add
-                </button>
-              </li>
-            </Link>
+            <button 
+              type="button"
+              className="nav-link btn btn-link"
+              onClick={() => navigate(`/add`)}
+            >
+              Add
+            </button>
 
-            {/* Dropdown */}
+            {/* Status Filter */}
             <li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                Filter by status
+                Filter by Status
               </a>
               <ul className="dropdown-menu">
-                <li><a className="dropdown-item" href="#">Link</a></li>
-                <li><a className="dropdown-item" href="#">Another link</a></li>
-                <li><a className="dropdown-item" href="#">A third link</a></li>
+                <li><button className="dropdown-item" onClick={() => setStatusFilter("all")}>All</button></li>
+                <li><button className="dropdown-item" onClick={() => setStatusFilter("not started")}>Not started</button></li>
+                <li><button className="dropdown-item" onClick={() => setStatusFilter("started")}>Started</button></li>
+                <li><button className="dropdown-item" onClick={() => setStatusFilter("completed")}>Completed</button></li>
+              </ul>
+            </li>
+
+            {/* Category Filter */}
+            <li className="nav-item dropdown">
+              <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                Filter by Category
+              </a>
+              <ul className="dropdown-menu">
+                <li><button className="dropdown-item" onClick={() => setCategoryFilter("all")}>All</button></li>
+                <li><button className="dropdown-item" onClick={() => setCategoryFilter("work")}>Work</button></li>
+                <li><button className="dropdown-item" onClick={() => setCategoryFilter("personal")}>Personal</button></li>
+                <li><button className="dropdown-item" onClick={() => setCategoryFilter("learning")}>Learning</button></li>
               </ul>
             </li>
           </ul>
 
-          {/* Search form */}
+          {/* Search */}
           <form className="d-flex">
-            <input className="form-control me-2" type="text" placeholder="Search" onChange={(e) => setSearchTerm(e.target.value)} />
+            <input
+              className="form-control me-2"
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <button className="btn btn-primary" type="button">Search</button>
           </form>
         </div>
@@ -57,13 +69,4 @@ const Navbar = ({ searchTerm, setSearchTerm }) => {
   );
 };
 
-Navbar.propTypes = {
-  logout: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired,
-};
-
-const mapStateToProps = (state) => ({
-  auth: state.auth,
-});
-
-export default connect(mapStateToProps)(Navbar);
+export default Navbar;

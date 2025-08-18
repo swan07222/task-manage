@@ -12,7 +12,7 @@ const Edit = ({ tasks, dispatch }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
+    category: 'Personal',
     status: 'No started',
   });
 
@@ -68,17 +68,18 @@ const Edit = ({ tasks, dispatch }) => {
           required
         />
       </div>
-      <div className="mb-3">
-        <label>Category</label>
-        <input
-          type="text"
-          name="category"
-          value={category}
-          onChange={onChange}
-          className="form-control"
-          required
-        />
-      </div>
+      <select
+        name="category"
+        value={category}
+        onChange={onChange}
+        className="form-select mb-3"
+        required
+      >
+        <option>Personal</option>
+        <option>Work</option>
+        <option>Learning</option>
+      </select>
+
       <div className="mb-3">
         <label>Status</label>
         <select
