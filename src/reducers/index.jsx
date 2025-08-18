@@ -1,5 +1,5 @@
-// src/reducers/index.js
 import { combineReducers } from "redux";
+import taskadd from "./task";
 
 // Example: a simple dummy reducer
 const dummyReducer = (state = {}, action) => {
@@ -9,8 +9,10 @@ const dummyReducer = (state = {}, action) => {
   }
 };
 
+// Combine reducers correctly
 const rootReducer = combineReducers({
-  dummy: dummyReducer
+  dummy: dummyReducer,
+  task: taskadd,
 });
 
 export default rootReducer;
