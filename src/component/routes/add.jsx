@@ -74,7 +74,7 @@ const Add = ({ dispatch }) => {
             value={description}
             onChange={onChange}
             className="form-control"
-            style={{ width: "50%" }}
+            style={{ width: "50%", height: "150px", resize: "vertical" }} // set height here
             rows="1"
             required
           />
