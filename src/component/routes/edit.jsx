@@ -46,47 +46,60 @@ const Edit = ({ tasks, dispatch }) => {
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="mb-3">
-        <label>Title</label>
+      {/* Title */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Title</label>
         <input
           type="text"
           name="title"
           value={title}
           onChange={onChange}
           className="form-control"
+          style={{ width: "50%" }}
           required
         />
       </div>
-      <div className="mb-3">
-        <label>Description</label>
+
+      {/* Description */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Description</label>
         <textarea
           name="description"
           value={description}
           onChange={onChange}
           className="form-control"
-          rows="4"
+          style={{ width: "50%" }}
+          rows="1"
           required
         />
       </div>
-      <select
-        name="category"
-        value={category}
-        onChange={onChange}
-        className="form-select mb-3"
-        required
-      >
-        <option>Personal</option>
-        <option>Work</option>
-        <option>Learning</option>
-      </select>
 
-      <div className="mb-3">
-        <label>Status</label>
+      {/* Category */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Category</label>
+        <select
+          name="category"
+          value={category}
+          onChange={onChange}
+          className="form-select"
+          style={{ width: "50%" }}
+          required
+        >
+          <option>Personal</option>
+          <option>Work</option>
+          <option>Learning</option>
+        </select>
+      </div>
+
+      {/* Status */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Status</label>
         <select
           name="status"
           value={status}
           onChange={onChange}
           className="form-select"
+          style={{ width: "50%" }}
           required
         >
           <option>No started</option>
@@ -94,8 +107,15 @@ const Edit = ({ tasks, dispatch }) => {
           <option>Completed</option>
         </select>
       </div>
-      <button type="submit" className="btn btn-primary me-2">Save</button>
-      <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Cancel</button>
+
+      {/* Buttons */}
+      <div className="mb-3 d-flex align-items-center">
+        <div style={{ width: "150px" }}></div> {/* Empty space to align with inputs */}
+        <div>
+          <button type="submit" className="btn btn-primary me-2">Save</button>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Cancel</button>
+        </div>
+      </div>
     </form>
   );
 };

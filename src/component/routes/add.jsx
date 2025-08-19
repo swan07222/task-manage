@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { addTask } from "../../actions/taskactions";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Add = ({ dispatch }) => {
   const [formData, setFormData] = useState({
@@ -35,57 +35,80 @@ const Add = ({ dispatch }) => {
 
   return (
     <form onSubmit={onSubmit}>
-    <div className="mb-3">
-      <label>Title</label>
-      <input
-        type="text"
-        name="title"
-        value={title}
-        onChange={onChange}
-        className="form-control"
-        required
-      />
-    </div>
-    <div className="mb-3">
-      <label>Description</label>
-      <textarea
-        name="description"
-        value={description}
-        onChange={onChange}
-        className="form-control"
-        rows="4"
-        required
-      />
-    </div>
-    <select
-      name="category"
-      value={category}
-      onChange={onChange}
-      className="form-select mb-3"
-      required
-    >
-      <option>Personal</option>
-      <option>Work</option>
-      <option>Learning</option>
-    </select>
+      {/* Title */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Title</label>
+        <input
+          placeholder="title"
+          type="text"
+          name="title"
+          value={title}
+          onChange={onChange}
+          className="form-control"
+          style={{ width: "50%" }}
+          required
+        />
+      </div>
 
-    <div className="mb-3">
-      <label>Status</label>
-      <select
-        name="status"
-        value={status}
-        onChange={onChange}
-        className="form-select"
-        required
-      >
-        <option>No started</option>
-        <option>Started</option>
-        <option>Completed</option>
-      </select>
-    </div>
-    <button type="submit" className="btn btn-primary me-2">Save</button>
-    <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Cancel</button>
-  </form>
+      {/* Description */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Description</label>
+        <textarea
+          placeholder="description"
+          name="description"
+          value={description}
+          onChange={onChange}
+          className="form-control"
+          style={{ width: "50%" }}
+          rows="1"
+          required
+        />
+      </div>
+
+      {/* Category */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Category</label>
+        <select
+          name="category"
+          value={category}
+          onChange={onChange}
+          className="form-select"
+          style={{ width: "50%" }}
+          required
+        >
+          <option>Personal</option>
+          <option>Work</option>
+          <option>Learning</option>
+        </select>
+      </div>
+
+      {/* Status */}
+      <div className="mb-3 d-flex align-items-center">
+        <label style={{ width: "150px" }}>Status</label>
+        <select
+          name="status"
+          value={status}
+          onChange={onChange}
+          className="form-select"
+          style={{ width: "50%" }}
+          required
+        >
+          <option>No started</option>
+          <option>Started</option>
+          <option>Completed</option>
+        </select>
+      </div>
+
+      {/* Buttons */}
+      <div className="mb-3 d-flex align-items-center">
+        <div style={{ width: "150px" }}></div> {/* Empty space to align with inputs */}
+        <div>
+          <button type="submit" className="btn btn-primary me-2">Save</button>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>Cancel</button>
+        </div>
+      </div>
+    </form>
+
   );
 };
 
