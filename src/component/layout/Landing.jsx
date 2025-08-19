@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { connect } from "react-redux";
 import { showTasks, deleteTask } from "../../actions/taskactions";
 import { useNavigate } from "react-router-dom";
@@ -8,9 +8,11 @@ const Landing = ({ tasks, dispatch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-
   const [showModal, setShowModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+
+  const filterRef = useRef(null);
+  const [filterHeight, setFilterHeight] = useState(0);
 
   const navigate = useNavigate();
 
@@ -18,13 +20,27 @@ const Landing = ({ tasks, dispatch }) => {
     dispatch(showTasks());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (filterRef.current) {
+      setFilterHeight(filterRef.current.offsetHeight + 20); // add extra spacing
+    }
+    const handleResize = () => {
+      if (filterRef.current)
+        setFilterHeight(filterRef.current.offsetHeight + 20);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleDeleteClick = (taskId) => {
     setTaskToDelete(taskId);
     setShowModal(true);
   };
 
   const confirmDelete = () => {
-    dispatch(deleteTask(taskToDelete));
+    if (taskToDelete) {
+      dispatch(deleteTask(taskToDelete));
+    }
     setShowModal(false);
     setTaskToDelete(null);
   };
@@ -38,7 +54,6 @@ const Landing = ({ tasks, dispatch }) => {
     const term = searchTerm.toLowerCase();
     const status = statusFilter.toLowerCase();
     const category = categoryFilter.toLowerCase();
-    console.log(task);
 
     const matchesSearch =
       task.title.toLowerCase().includes(term) ||
@@ -55,12 +70,12 @@ const Landing = ({ tasks, dispatch }) => {
 
   return (
     <div>
-      {/* Fixed filter bar below navbar */}
+      {/* Filter bar */}
       <div
+        ref={filterRef}
         className="bg-light p-3 d-flex flex-wrap align-items-center gap-2 position-fixed start-0 w-100 shadow"
         style={{ zIndex: 1000, top: "56px" }}
       >
-        {/* Status Filter */}
         <div className="d-flex align-items-center">
           <label htmlFor="statusFilter" className="me-2 mb-0">
             Filter by Status:
@@ -78,7 +93,6 @@ const Landing = ({ tasks, dispatch }) => {
           </select>
         </div>
 
-        {/* Category Filter */}
         <div className="d-flex align-items-center">
           <label htmlFor="categoryFilter" className="me-2 mb-0">
             Filter by Category:
@@ -96,8 +110,7 @@ const Landing = ({ tasks, dispatch }) => {
           </select>
         </div>
 
-        {/* Search */}
-        <div className="d-flex align-items-center">
+        <div className="d-flex align-items-center ms-auto">
           <input
             type="text"
             className="form-control"
@@ -108,8 +121,8 @@ const Landing = ({ tasks, dispatch }) => {
         </div>
       </div>
 
-      {/* Spacer */}
-      <div style={{ height: "140px" }}></div>
+      {/* Dynamic spacer with extra padding */}
+      <div style={{ height: filterHeight }}></div>
 
       {/* Task Grid */}
       <div className="container-fluid">
@@ -159,7 +172,7 @@ const Landing = ({ tasks, dispatch }) => {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       <Modal show={showModal} onHide={cancelDelete} centered>
         <Modal.Header closeButton>
           <Modal.Title>Delete Task</Modal.Title>
@@ -177,7 +190,7 @@ const Landing = ({ tasks, dispatch }) => {
         </Modal.Footer>
       </Modal>
 
-      {/* Hover effect CSS */}
+      {/* Hover effect */}
       <style>{`
         .task-card {
           transition: transform 0.2s, box-shadow 0.2s;

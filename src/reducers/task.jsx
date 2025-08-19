@@ -25,12 +25,12 @@ export default function(state = initialState, action) {
                 loading: false
             };
 
-        case DELETE_TASK:
-            return {
-                ...state,
-                tasks: state.tasks.filter((_, idx) => idx !== action.payload),
-                loading: false
-            };
+            case DELETE_TASK:
+                return {
+                  ...state,
+                  tasks: state.tasks.filter((task) => task.id !== action.payload)
+                };
+              
         case EDIT_TASK:
             const updatedTasks = state.tasks.map((task, idx) =>
                 idx === action.payload.id ? action.payload.updatedTask : task
