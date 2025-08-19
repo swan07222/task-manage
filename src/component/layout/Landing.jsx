@@ -329,4 +329,5 @@ const mapStateToProps = (state) => ({
   lastTask: state.task.lastTask,
 });
 
+
 export default connect(mapStateToProps)(Landing);

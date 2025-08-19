@@ -1,6 +1,6 @@
 
 
-  import { ADD_TASK, SHOW_TASKS, DELETE_TASK, EDIT_TASK, CLEAR_LAST_ACTION } from "../actions/types";
+import { ADD_TASK, SHOW_TASKS, DELETE_TASK, EDIT_TASK, CLEAR_LAST_ACTION } from "../actions/types";
 
 const initialState = {
   tasks: [],      
