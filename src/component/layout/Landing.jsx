@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { connect } from "react-redux";
-import { showTasks, deleteTask } from "../../actions/taskactions";
+import { showTasks, deleteTask, clearLastAction } from "../../actions/taskactions";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button, Alert } from "react-bootstrap";
 
@@ -28,10 +28,10 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
 
   // Adjust spacing for fixed filter bar
   useEffect(() => {
-    if (filterRef.current) setFilterHeight(filterRef.current.offsetHeight); // smaller padding
+    if (filterRef.current) setFilterHeight(filterRef.current.offsetHeight);
     const handleResize = () => {
       if (filterRef.current)
-        setFilterHeight(filterRef.current.offsetHeight + 10); // smaller padding
+        setFilterHeight(filterRef.current.offsetHeight + 10);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -40,19 +40,19 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
   // Show alert on lastAction change
   useEffect(() => {
     if (!lastAction) return;
-  
+
     let msg = "";
-    if (lastAction === "add") msg = "Task added successfully!";
-    else if (lastAction === "edit") msg = "Task edited successfully!";
-    else if (lastAction === "delete") msg = "Task deleted successfully!";
-  
+    if (lastAction === "EDIT_TASK") msg = "Task edited successfully!";
+    else if (lastAction === "ADD_TASK") msg = "Task added successfully!";
+    else if (lastAction === "DELETE_TASK") msg = "Task deleted successfully!";
+
     setAlertMessage(msg);
-  
+
     const timer = setTimeout(() => {
       setAlertMessage(null);
-      dispatch({ type: "CLEAR_LAST_ACTION" });
+      dispatch(clearLastAction());
     }, 3000);
-  
+
     return () => clearTimeout(timer);
   }, [lastAction, dispatch]);
 
@@ -81,8 +81,10 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
     setShowTaskModal(false);
   };
 
-  // Filter tasks
+  // Filter tasks safely
   const filteredTasks = (tasks || []).filter((task) => {
+    if (!task.title || !task.description || !task.category || !task.status) return false;
+
     const term = searchTerm.toLowerCase();
     const status = statusFilter.toLowerCase();
     const category = categoryFilter.toLowerCase();
@@ -92,10 +94,8 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
       task.description.toLowerCase().includes(term) ||
       task.category.toLowerCase().includes(term);
 
-    const matchesStatus =
-      status === "all" ? true : task.status.toLowerCase() === status;
-    const matchesCategory =
-      category === "all" ? true : task.category.toLowerCase() === category;
+    const matchesStatus = status === "all" ? true : task.status.toLowerCase() === status;
+    const matchesCategory = category === "all" ? true : task.category.toLowerCase() === category;
 
     return matchesSearch && matchesStatus && matchesCategory;
   });
@@ -124,7 +124,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
         style={{ zIndex: 1000, top: "56px" }}
       >
         <div className="d-flex align-items-center">
-          Filter by Status
+          Filter by status
           <select
             className="form-select"
             value={statusFilter}
@@ -152,16 +152,15 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
         </div>
 
         <div className="d-flex align-items-center ms-auto flex-grow-1 justify-content-center justify-content-md-end">
-  <input
-    type="text"
-    className="form-control"
-    placeholder="Search"
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    style={{ maxWidth: "250px" }}
-  />
-</div>
-
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ maxWidth: "250px" }}
+          />
+        </div>
       </div>
 
       {/* Spacer */}
@@ -173,8 +172,8 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
           <p>No tasks found.</p>
         ) : (
           <div className="row g-3">
-            {filteredTasks.map((task) => (
-              <div key={task.id} className="col-12 col-sm-4 col-md-3 col-lg-3">
+            {filteredTasks.map((task, index) => (
+              <div key={task.id || index} className="col-12 col-sm-4 col-md-3 col-lg-3">
                 <div
                   className="card h-100 position-relative task-card"
                   onClick={() => handleTaskClick(task)}
@@ -184,11 +183,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
                   <div className="position-absolute top-0 end-0 m-2 d-flex gap-1">
                     <button
                       className="btn btn-primary d-flex justify-content-center align-items-center"
-                      style={{
-                        width: "35px",
-                        height: "35px",
-                        borderRadius: "50%",
-                      }}
+                      style={{ width: "35px", height: "35px", borderRadius: "50%" }}
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/edit/${task.id}`);
@@ -199,11 +194,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
                     </button>
                     <button
                       className="btn btn-danger d-flex justify-content-center align-items-center"
-                      style={{
-                        width: "35px",
-                        height: "35px",
-                        borderRadius: "50%",
-                      }}
+                      style={{ width: "35px", height: "35px", borderRadius: "50%" }}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteClick(task.id);
@@ -216,10 +207,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
 
                   <div className="card-body d-flex flex-column align-items-center text-center">
                     <h5 className="card-title">{task.title}</h5>
-                    <p
-                      className="card-text flex-grow-1 p-2 border rounded w-100"
-                      style={{ minHeight: "50px" }}
-                    >
+                    <p className="card-text flex-grow-1 p-2 border rounded w-100" style={{ minHeight: "50px" }}>
                       {task.description.length > 20
                         ? task.description.substring(0, 20) + "..."
                         : task.description}
@@ -317,7 +305,6 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
         </Modal.Footer>
       </Modal>
 
-      {/* Hover effect */}
       <style>{`
         .task-card {
           transition: transform 0.2s, box-shadow 0.2s;
@@ -328,7 +315,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
         }
         @media (max-width: 576px) {
           .task-container {
-            padding-top: 60px !important; /* smaller padding on mobile */
+            padding-top: 60px !important;
           }
         }
       `}</style>
@@ -338,8 +325,8 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
 
 const mapStateToProps = (state) => ({
   tasks: state.task.tasks,
-  lastAction: state.task.lastAction,  
-  lastTask: state.task.lastTask
+  lastAction: state.task.lastAction,
+  lastTask: state.task.lastTask,
 });
 
 

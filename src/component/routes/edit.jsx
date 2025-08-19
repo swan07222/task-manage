@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { editTask } from '../../actions/taskactions';
 
 const Edit = ({ tasks, dispatch }) => {
-  const { id } = useParams(); // get UUID from URL
+  const { id } = useParams(); // get task id from URL
   const navigate = useNavigate();
 
-  // ✅ Find the task by UUID instead of array index
+  // Find the task by id
   const taskToEdit = tasks.find(t => t.id === id);
 
   const [formData, setFormData] = useState({
@@ -16,9 +17,15 @@ const Edit = ({ tasks, dispatch }) => {
     status: 'Not started',
   });
 
+  // Populate form if task exists
   useEffect(() => {
     if (taskToEdit) {
-      setFormData(taskToEdit);
+      setFormData({
+        title: taskToEdit.title || '',
+        description: taskToEdit.description || '',
+        category: taskToEdit.category || 'Personal',
+        status: taskToEdit.status || 'Not started'
+      });
     }
   }, [taskToEdit]);
 
@@ -30,18 +37,13 @@ const Edit = ({ tasks, dispatch }) => {
   const onSubmit = e => {
     e.preventDefault();
 
-    // Dispatch your edit action with UUID
-    dispatch({ type: 'EDIT_TASK', payload: { id, updatedTask: formData } });
+    if (!taskToEdit) return;
 
-    // ✅ Update localStorage properly
-    const tasksLocal = JSON.parse(localStorage.getItem('tasks')) || [];
-    const index = tasksLocal.findIndex(t => t.id === id);
-    if (index !== -1) {
-      tasksLocal[index] = formData;
-      localStorage.setItem('tasks', JSON.stringify(tasksLocal));
-    }
+    // Use action creator to update Redux and localStorage
+    dispatch(editTask({ ...formData, id: taskToEdit.id }));
 
-    navigate('/'); // go back to the landing page
+
+    navigate('/'); // Go back to landing page
   };
 
   if (!taskToEdit) {
@@ -58,6 +60,7 @@ const Edit = ({ tasks, dispatch }) => {
       >
         Back to home
       </button>
+
       <form onSubmit={onSubmit}>
         {/* Title */}
         <div className="mb-3 d-flex align-items-center">
@@ -134,7 +137,7 @@ const Edit = ({ tasks, dispatch }) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   tasks: state.task.tasks,
 });
 
