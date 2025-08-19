@@ -38,17 +38,16 @@ export default function(state = initialState, action) {
         lastTask: action.lastTask
       };
 
-    case EDIT_TASK:
-        const updatedTasks = state.tasks.map((task, idx) =>
-        idx === action.payload.id ? action.payload.updatedTask : task
-    );
-      return {
-        ...state,
-        tasks: updatedTasks,
-        loading: false,
-        lastAction: action.lastAction,
-        lastTask: action.lastTask
-      };
+      case EDIT_TASK:
+        return {
+            ...state,
+            tasks: state.tasks.map(task =>
+              task.id === action.payload.id ? action.payload : task
+            ),
+            loading: false,
+            lastAction: action.lastAction,
+            lastTask: action.lastTask
+          };
 
     case CLEAR_LAST_ACTION:
       return { ...state, lastAction: null, lastTask: null };

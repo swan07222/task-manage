@@ -1,18 +1,20 @@
 import { ADD_TASK, SHOW_TASKS, DELETE_TASK, EDIT_TASK, CLEAR_LAST_ACTION } from "./types";
+import { v4 as uuidv4 } from 'uuid';  // install uuid via npm i uuid
 
-// Add a task
 export const addTask = (task) => {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  tasks.push(task);
+  const taskWithId = { ...task, id: task.id || uuidv4() }; // assign UUID if missing
+  tasks.push(taskWithId);
   localStorage.setItem("tasks", JSON.stringify(tasks));
 
   return {
     type: ADD_TASK,
-    payload: task,
+    payload: taskWithId,
     lastAction: "ADD_TASK",
-    lastTask: {task}
+    lastTask: taskWithId
   };
 };
+
 
 // Show tasks (no lastAction needed)
 export const showTasks = () => {
@@ -40,7 +42,9 @@ export const deleteTask = (id) => {
 // Edit a task
 export const editTask = (updatedTask) => {
   const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-  const newTasks = tasks.map(task => task.id === updatedTask.id ? updatedTask : task);
+  const newTasks = tasks.map(task =>
+    task.id === updatedTask.id ? updatedTask : task
+  );
   localStorage.setItem("tasks", JSON.stringify(newTasks));
 
   return {
@@ -50,6 +54,7 @@ export const editTask = (updatedTask) => {
     lastTask: updatedTask
   };
 };
+
 
 // Clear last action
 export const clearLastAction = () => ({
