@@ -207,9 +207,12 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
 
                   <div className="card-body d-flex flex-column align-items-center text-center">
                     <h5 className="card-title">{task.title}</h5>
-                    <p className="card-text flex-grow-1 p-2 border rounded w-100" style={{ minHeight: "50px" }}>
+                    <p
+                      className="card-text flex-grow-1 p-2 w-100"
+                      style={{ minHeight: "50px" }}
+                    >
                       {task.description.length > 20
-                        ? task.description.substring(0, 20) + "..."
+                        ? task.description.substring(0, 40) + "..."
                         : task.description}
                     </p>
                     <div className="mb-2">
@@ -253,12 +256,45 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
       </Modal>
 
       {/* Task Detail Modal */}
-      <Modal show={showTaskModal} onHide={closeTaskModal} centered>
-        <Modal.Body className="text-center">
+      <Modal
+        show={showTaskModal}
+        onHide={closeTaskModal}
+        centered
+        className="task-detail-modal"
+      >
+        <Modal.Body className="text-center position-relative p-4">
+          {/* Top-right close icon */}
+          <button
+            type="button"
+            onClick={closeTaskModal}
+            style={{
+              position: "absolute",
+              top: "-5px",
+              right: "10px",
+              background: "transparent",
+              border: "none",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+              color: "#000",
+            }}
+            title="Close"
+          >
+            &times;
+          </button>
+
           {selectedTask && (
             <>
               <h5>{selectedTask.title}</h5>
-              <p className="border rounded p-2 mt-2">{selectedTask.description}</p>
+              <div
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  textAlign: "left",
+                  padding: "5px 0",
+                }}
+              >
+                {selectedTask.description}
+              </div>
               <div className="mt-2">
                 <span
                   className={`badge me-1 ${
@@ -299,9 +335,6 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
               </Button>
             </>
           )}
-          <Button variant="secondary" onClick={closeTaskModal}>
-            Close
-          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -328,6 +361,5 @@ const mapStateToProps = (state) => ({
   lastAction: state.task.lastAction,
   lastTask: state.task.lastTask,
 });
-
 
 export default connect(mapStateToProps)(Landing);
