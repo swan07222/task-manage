@@ -312,11 +312,12 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
             </>
           )}
         </Modal.Body>
-        <Modal.Footer className="justify-content-center">
+        <Modal.Footer>
           {selectedTask && (
-            <>
+            <div className="d-flex w-100 justify-content-between">
               <Button
                 variant="primary"
+                style={{ width: "120px" }}
                 onClick={() => {
                   navigate(`/edit/${selectedTask.id}`);
                   closeTaskModal();
@@ -326,6 +327,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
               </Button>
               <Button
                 variant="danger"
+                style={{ width: "120px" }}
                 onClick={() => {
                   handleDeleteClick(selectedTask.id);
                   closeTaskModal();
@@ -333,7 +335,7 @@ const Landing = ({ tasks, lastAction, dispatch }) => {
               >
                 Delete
               </Button>
-            </>
+            </div>
           )}
         </Modal.Footer>
       </Modal>
