@@ -8,27 +8,12 @@ import Landing from './component/layout/Landing.jsx'
 import './App.css'
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-
   return (
     <Router>
-      <Navbar 
-        searchTerm={searchTerm} 
-        setSearchTerm={setSearchTerm} 
-        statusFilter={statusFilter} 
-        setStatusFilter={setStatusFilter} 
-        categoryFilter={categoryFilter}      
-        setCategoryFilter={setCategoryFilter} 
-      />
+      <Navbar/>
       <Routes>
         <Route path='/' element={
-          <Landing 
-            searchTerm={searchTerm} 
-            statusFilter={statusFilter} 
-            categoryFilter={categoryFilter} 
-          />
+          <Landing/>
         }/>
         <Route exact path='/add' element={<Add />} />
         <Route exact path='/edit/:id' element={<Edit />} />

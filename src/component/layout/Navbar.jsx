@@ -1,71 +1,81 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const Navbar = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, categoryFilter, setCategoryFilter }) => {
+const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
-      <div className="container-fluid">
+    <>
+      <nav className="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+        <div className="container-fluid">
 
-        <Link className="navbar-brand" to="/about">About</Link>
+          {/* Left side: Task Manager */}
+          <button
+            type="button"
+            className="btn btn-outline-light fw-bold mb-0 me-3"
+            onClick={() => navigate("/")}
+          >
+            Task Manager
+          </button>
 
-        <button className="navbar-toggler" type="button">
-          <span className="navbar-toggler-icon"></span>
-        </button>
+          {/* Navbar toggler for mobile */}
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mynavbar"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
-        <div className="collapse navbar-collapse" id="mynavbar">
-          <ul className="navbar-nav me-auto mb-2 mb-sm-0">
-
-            <button 
-              type="button"
-              className="nav-link btn btn-link"
-              onClick={() => navigate(`/add`)}
-            >
-              Add
-            </button>
-
-            {/* Status Filter */}
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                Filter by Status
-              </a>
-              <ul className="dropdown-menu">
-                <li><button className="dropdown-item" onClick={() => setStatusFilter("all")}>All</button></li>
-                <li><button className="dropdown-item" onClick={() => setStatusFilter("not started")}>Not started</button></li>
-                <li><button className="dropdown-item" onClick={() => setStatusFilter("started")}>Started</button></li>
-                <li><button className="dropdown-item" onClick={() => setStatusFilter("completed")}>Completed</button></li>
-              </ul>
-            </li>
-
-            {/* Category Filter */}
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                Filter by Category
-              </a>
-              <ul className="dropdown-menu">
-                <li><button className="dropdown-item" onClick={() => setCategoryFilter("all")}>All</button></li>
-                <li><button className="dropdown-item" onClick={() => setCategoryFilter("work")}>Work</button></li>
-                <li><button className="dropdown-item" onClick={() => setCategoryFilter("personal")}>Personal</button></li>
-                <li><button className="dropdown-item" onClick={() => setCategoryFilter("learning")}>Learning</button></li>
-              </ul>
-            </li>
-          </ul>
-
-          {/* Search */}
-          <form className="d-flex">
-            <input
-              className="form-control me-2"
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="btn btn-primary" type="button">Search</button>
-          </form>
+          {/* Right side: Add and About */}
+          <div className="collapse navbar-collapse justify-content-end" id="mynavbar">
+            <ul className="navbar-nav mb-2 mb-sm-0">
+              <li className="nav-item me-2">
+                <button 
+                  type="button"
+                  className="btn btn-outline-light fw-normal mb-0"
+                  onClick={() => navigate("/add")}
+                >
+                  Add
+                </button>
+              </li>
+              <li className="nav-item">
+                <Link 
+                  className="nav-link text-white fw-normal mb-0"
+                  to="/about"
+                  style={{ textDecoration: 'none' }}
+                >
+                  About
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Hover and click effects CSS */}
+      <style>{`
+        .navbar .btn {
+          transition: all 0.2s ease-in-out;
+        }
+
+        .navbar .btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .navbar .btn:active {
+          transform: scale(0.95);
+        }
+
+        /* Optional: smooth hover for navbar links */
+        .navbar .nav-link:hover {
+          color: #ffc107 !important; /* highlight color */
+          transition: color 0.2s ease-in-out;
+        }
+      `}</style>
+    </>
   );
 };
 

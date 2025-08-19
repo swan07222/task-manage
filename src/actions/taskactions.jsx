@@ -23,10 +23,14 @@ export const showTasks = () => {
 };
 
 export const deleteTask = (id) => {
-  // Remove from localStorage
+  // Get tasks from localStorage
   const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  tasks.splice(id, 1); // remove the task at index id
-  localStorage.setItem('tasks', JSON.stringify(tasks));
+
+  // Filter out the task with matching id
+  const updatedTasks = tasks.filter((task) => task.id !== id);
+
+  // Save updated list back
+  localStorage.setItem('tasks', JSON.stringify(updatedTasks));
 
   // Return Redux action
   return {

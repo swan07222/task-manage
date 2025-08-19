@@ -1,4 +1,23 @@
 li {
     list-style-type: none;
   }
-  
+.row g-3
+{
+
+}
+
+#root {
+  max-width: 1280px;
+  /* margin: 0 auto; */
+  padding: 2rem;
+  text-align: center;
+  width: 100%;
+}
+
+.task-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.task-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
