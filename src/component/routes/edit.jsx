@@ -33,7 +33,6 @@ const Edit = ({ tasks, dispatch }) => {
     // Dispatch your edit action with UUID
     dispatch({ type: 'EDIT_TASK', payload: { id, updatedTask: formData } });
 
-    // ✅ Update localStorage properly
     const tasksLocal = JSON.parse(localStorage.getItem('tasks')) || [];
     const index = tasksLocal.findIndex(t => t.id === id);
     if (index !== -1) {

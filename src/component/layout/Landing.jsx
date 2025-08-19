@@ -1,55 +1,90 @@
 import React, { useEffect, useState, useRef } from "react";
 import { connect } from "react-redux";
-import { showTasks, deleteTask } from "../../actions/taskactions";
+import { showTasks, deleteTask,clearLastAction } from "../../actions/taskactions";
 import { useNavigate } from "react-router-dom";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Alert } from "react-bootstrap";
 
-const Landing = ({ tasks, dispatch }) => {
+const Landing = ({ tasks, lastAction, dispatch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  const [alertMessage, setAlertMessage] = useState(null);
 
   const filterRef = useRef(null);
   const [filterHeight, setFilterHeight] = useState(0);
 
   const navigate = useNavigate();
 
+  // Load tasks
   useEffect(() => {
     dispatch(showTasks());
   }, [dispatch]);
 
+  // Adjust spacing for fixed filter bar
   useEffect(() => {
-    if (filterRef.current) {
-      setFilterHeight(filterRef.current.offsetHeight + 20); // add extra spacing
-    }
+    if (filterRef.current) setFilterHeight(filterRef.current.offsetHeight); // smaller padding
     const handleResize = () => {
       if (filterRef.current)
-        setFilterHeight(filterRef.current.offsetHeight + 20);
+        setFilterHeight(filterRef.current.offsetHeight + 10); // smaller padding
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Show alert on lastAction change
+  useEffect(() => {
+    if (!lastAction) return;
+  
+    let msg = "";
+    if (lastAction === "EDIT_TASK") msg = "Task edited successfully!";
+    else if (lastAction === "ADD_TASK") msg = "Task added successfully!";
+    else if (lastAction === "DELETE_TASK") msg = "Task deleted successfully!";
+  
+    setAlertMessage(msg);
+
+    // clear any existing timers first
+    const timer = setTimeout(() => {
+      console.log('123123')
+      setAlertMessage(null);
+      dispatch(clearLastAction()); // reset lastAction in Redux
+    }, 3000);
+  
+    // cleanup to prevent multiple timers
+    return () => clearTimeout(timer);
+  }, [lastAction, dispatch]);
+  
+  // Delete logic
   const handleDeleteClick = (taskId) => {
     setTaskToDelete(taskId);
-    setShowModal(true);
+    setShowDeleteModal(true);
   };
-
   const confirmDelete = () => {
-    if (taskToDelete) {
-      dispatch(deleteTask(taskToDelete));
-    }
-    setShowModal(false);
+    if (taskToDelete) dispatch(deleteTask(taskToDelete));
+    setShowDeleteModal(false);
     setTaskToDelete(null);
   };
-
   const cancelDelete = () => {
-    setShowModal(false);
+    setShowDeleteModal(false);
     setTaskToDelete(null);
   };
 
+  // Task modal logic
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setShowTaskModal(true);
+  };
+  const closeTaskModal = () => {
+    setSelectedTask(null);
+    setShowTaskModal(false);
+  };
+
+  // Filter tasks
   const filteredTasks = (tasks || []).filter((task) => {
     const term = searchTerm.toLowerCase();
     const status = statusFilter.toLowerCase();
@@ -70,18 +105,30 @@ const Landing = ({ tasks, dispatch }) => {
 
   return (
     <div>
-      {/* Filter bar */}
+      {/* Alert */}
+      {alertMessage && (
+        <Alert
+          variant="success"
+          style={{
+            position: "fixed",
+            top: "80px",
+            right: "20px",
+            zIndex: 2000,
+          }}
+        >
+          {alertMessage}
+        </Alert>
+      )}
+
+      {/* Filter Bar */}
       <div
         ref={filterRef}
         className="bg-light p-3 d-flex flex-wrap align-items-center gap-2 position-fixed start-0 w-100 shadow"
         style={{ zIndex: 1000, top: "56px" }}
       >
         <div className="d-flex align-items-center">
-          <label htmlFor="statusFilter" className="me-2 mb-0">
-            Filter by Status:
-          </label>
+          Filter by status
           <select
-            id="statusFilter"
             className="form-select"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -94,11 +141,8 @@ const Landing = ({ tasks, dispatch }) => {
         </div>
 
         <div className="d-flex align-items-center">
-          <label htmlFor="categoryFilter" className="me-2 mb-0">
-            Filter by Category:
-          </label>
+          Filter by Category
           <select
-            id="categoryFilter"
             className="form-select"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
@@ -110,32 +154,79 @@ const Landing = ({ tasks, dispatch }) => {
           </select>
         </div>
 
-        <div className="d-flex align-items-center ms-auto">
+        <div className="d-flex align-items-center ms-auto flex-grow-1 justify-content-center justify-content-md-end">
           <input
             type="text"
             className="form-control"
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ maxWidth: "250px" }}
           />
         </div>
+
       </div>
 
-      {/* Dynamic spacer with extra padding */}
+      {/* Spacer */}
       <div style={{ height: filterHeight }}></div>
 
       {/* Task Grid */}
-      <div className="container-fluid">
+      <div className="container-fluid task-container" style={{ paddingTop: filterHeight }}>
         {filteredTasks.length === 0 ? (
           <p>No tasks found.</p>
         ) : (
           <div className="row g-3">
             {filteredTasks.map((task) => (
-              <div key={task.id} className="col-6 col-sm-4 col-md-3 col-lg-2">
-                <div className="card h-100 task-card">
-                  <div className="card-body d-flex flex-column">
+              <div key={task.id} className="col-12 col-sm-4 col-md-3 col-lg-3">
+                <div
+                  className="card h-100 position-relative task-card"
+                  onClick={() => handleTaskClick(task)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {/* Top-right circular buttons */}
+                  <div className="position-absolute top-0 end-0 m-2 d-flex gap-1">
+                    <button
+                      className="btn btn-primary d-flex justify-content-center align-items-center"
+                      style={{
+                        width: "35px",
+                        height: "35px",
+                        borderRadius: "50%",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/edit/${task.id}`);
+                      }}
+                      title="Edit"
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      className="btn btn-danger d-flex justify-content-center align-items-center"
+                      style={{
+                        width: "35px",
+                        height: "35px",
+                        borderRadius: "50%",
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(task.id);
+                      }}
+                      title="Delete"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+
+                  <div className="card-body d-flex flex-column align-items-center text-center">
                     <h5 className="card-title">{task.title}</h5>
-                    <p className="card-text flex-grow-1">{task.description}</p>
+                    <p
+                      className="card-text flex-grow-1 p-2 border rounded w-100"
+                      style={{ minHeight: "50px" }}
+                    >
+                      {task.description.length > 20
+                        ? task.description.substring(0, 20) + "..."
+                        : task.description}
+                    </p>
                     <div className="mb-2">
                       <span
                         className={`badge me-1 ${
@@ -150,20 +241,6 @@ const Landing = ({ tasks, dispatch }) => {
                       </span>
                       <span className="badge bg-info">{task.category}</span>
                     </div>
-                    <div className="mt-auto d-flex gap-2">
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => navigate(`/edit/${task.id}`)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDeleteClick(task.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -173,7 +250,7 @@ const Landing = ({ tasks, dispatch }) => {
       </div>
 
       {/* Delete Modal */}
-      <Modal show={showModal} onHide={cancelDelete} centered>
+      <Modal show={showDeleteModal} onHide={cancelDelete} centered>
         <Modal.Header closeButton>
           <Modal.Title>Delete Task</Modal.Title>
         </Modal.Header>
@@ -190,6 +267,59 @@ const Landing = ({ tasks, dispatch }) => {
         </Modal.Footer>
       </Modal>
 
+      {/* Task Detail Modal */}
+      <Modal show={showTaskModal} onHide={closeTaskModal} centered>
+        <Modal.Body className="text-center">
+          {selectedTask && (
+            <>
+              <h5>{selectedTask.title}</h5>
+              <p className="border rounded p-2 mt-2">{selectedTask.description}</p>
+              <div className="mt-2">
+                <span
+                  className={`badge me-1 ${
+                    selectedTask.status === "Not started"
+                      ? "bg-secondary"
+                      : selectedTask.status === "Started"
+                      ? "bg-primary"
+                      : "bg-success"
+                  }`}
+                >
+                  {selectedTask.status}
+                </span>
+                <span className="badge bg-info">{selectedTask.category}</span>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer className="justify-content-center">
+          {selectedTask && (
+            <>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  navigate(`/edit/${selectedTask.id}`);
+                  closeTaskModal();
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  handleDeleteClick(selectedTask.id);
+                  closeTaskModal();
+                }}
+              >
+                Delete
+              </Button>
+            </>
+          )}
+          <Button variant="secondary" onClick={closeTaskModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {/* Hover effect */}
       <style>{`
         .task-card {
@@ -199,6 +329,11 @@ const Landing = ({ tasks, dispatch }) => {
           transform: translateY(-5px) scale(1.02);
           box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
+        @media (max-width: 576px) {
+          .task-container {
+            padding-top: 60px !important; /* smaller padding on mobile */
+          }
+        }
       `}</style>
     </div>
   );
@@ -206,6 +341,9 @@ const Landing = ({ tasks, dispatch }) => {
 
 const mapStateToProps = (state) => ({
   tasks: state.task.tasks,
+  lastAction: state.task.lastAction,  
+  lastTask: state.task.lastTask
 });
+
 
 export default connect(mapStateToProps)(Landing);
