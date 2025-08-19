@@ -1,7 +1,9 @@
-import { ADD_TASK, SHOW_TASKS , DELETE_TASK, EDIT_TASK} from "../actions/types";
+import { ADD_TASK, SHOW_TASKS , DELETE_TASK, EDIT_TASK, CLEAR_LAST_ACTION} from "../actions/types";
 
 const initialState = {
     task: [],
+    lastAction: null,   // "add", "edit", "delete"
+    lastTask: null,
     loading: true,
     error: {}
 };
@@ -36,6 +38,9 @@ export default function(state = initialState, action) {
                 idx === action.payload.id ? action.payload.updatedTask : task
             );
             return { ...state, tasks: updatedTasks, loading: false };
+
+        case CLEAR_LAST_ACTION:
+            return { ...state, lastAction: null, lastTask: null };
   
       default:
         return state;
