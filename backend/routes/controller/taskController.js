@@ -1,5 +1,5 @@
 // controllers/taskController.js
-const TaskModel = require('../models/taskModel');
+const TaskModel = require('../services/taskServices');
 
 const TaskController = {
     async getAllTasks(req, res) {
